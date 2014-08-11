@@ -1,0 +1,53 @@
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/exchizz/ROS/Projects/UAV/mavlink/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec130478369/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec130478369.dir/build.make CMakeFiles/cmTryCompileExec130478369.dir/build
+make[1]: Går til katalog '/home/exchizz/ROS/Projects/UAV/mavlink/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/exchizz/ROS/Projects/UAV/mavlink/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec130478369.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTryCompileExec130478369.dir/CheckSymbolExists.c.o   -c /home/exchizz/ROS/Projects/UAV/mavlink/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTryCompileExec130478369
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec130478369.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTryCompileExec130478369.dir/CheckSymbolExists.c.o  -o cmTryCompileExec130478369 -rdynamic 
+CMakeFiles/cmTryCompileExec130478369.dir/CheckSymbolExists.c.o: I funktionen "main":
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+make[1]: *** [cmTryCompileExec130478369] Fejl 1
+make[1]: Forlader katalog '/home/exchizz/ROS/Projects/UAV/mavlink/build/CMakeFiles/CMakeTmp'
+make: *** [cmTryCompileExec130478369/fast] Fejl 2
+
+File /home/exchizz/ROS/Projects/UAV/mavlink/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/exchizz/ROS/Projects/UAV/mavlink/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec3105487854/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec3105487854.dir/build.make CMakeFiles/cmTryCompileExec3105487854.dir/build
+make[1]: Går til katalog '/home/exchizz/ROS/Projects/UAV/mavlink/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/exchizz/ROS/Projects/UAV/mavlink/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec3105487854.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTryCompileExec3105487854.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-2.8/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec3105487854
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3105487854.dir/link.txt --verbose=1
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTryCompileExec3105487854.dir/CheckFunctionExists.c.o  -o cmTryCompileExec3105487854 -rdynamic -lpthreads 
+/usr/bin/ld: kan ikke finde -lpthreads
+collect2: error: ld returned 1 exit status
+make[1]: *** [cmTryCompileExec3105487854] Fejl 1
+make[1]: Forlader katalog '/home/exchizz/ROS/Projects/UAV/mavlink/build/CMakeFiles/CMakeTmp'
+make: *** [cmTryCompileExec3105487854/fast] Fejl 2
+
+

@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "mavlink")
+set(mavlink_MAINTAINER "exchizz <exchizz@todo.todo>")
+set(mavlink_DEPRECATED "")
+set(mavlink_VERSION "0.0.0")
+set(mavlink_BUILD_DEPENDS "roscpp" "rospy" "std_msgs" "message_generation")
+set(mavlink_RUN_DEPENDS "roscpp" "rospy" "std_msgs" "message_runtime")
+set(mavlink_BUILDTOOL_DEPENDS "catkin")

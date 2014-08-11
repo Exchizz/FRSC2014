@@ -1,0 +1,8 @@
+prefix=/home/exchizz/ROS/Projects/UAV/mavlink/install
+
+Name: mavlink
+Description: Description of mavlink
+Version: 0.0.0
+Cflags: -I/home/exchizz/ROS/Projects/UAV/mavlink/install/include
+Libs: -L/home/exchizz/ROS/Projects/UAV/mavlink/install/lib 
+Requires: 

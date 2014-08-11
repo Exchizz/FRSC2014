@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/exchizz/ROS/Projects/UAV/mavlink/devel/setup.sh
