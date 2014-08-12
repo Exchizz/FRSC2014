@@ -36,23 +36,56 @@ ros::Publisher chatter_pub;
 
 void chatterCallback(const mavlink::Mavlink::ConstPtr& msg){
 
-	switch(msg->msgid){
 
+	mavlink_message_t mav_msg;
+
+
+	mav_msg.len = msg->len;
+	mav_msg.seq = msg->seq;
+	mav_msg.sysid = msg->sysid;
+	mav_msg.compid = msg->compid;
+	mav_msg.msgid = msg->msgid;
+
+	copy(msg->payload64.begin(), msg->payload64.end(), mav_msg.payload64);
+
+
+
+//	mavlink::Mavlink rosmavlink_msg;
+
+//	rosmavlink_msg.len = message.len;
+//	rosmavlink_msg.seq = message.seq;
+//	rosmavlink_msg.sysid = message.sysid;
+//	rosmavlink_msg.compid = message.compid;
+//	rosmavlink_msg.msgid = message.msgid;
+
+//	for (int i = 0; i < message.len / 8; i++){
+//        	(rosmavlink_msg.payload64).push_back(message.payload64[i]);
+//	}
+
+	/**
+	  * Send the received MAVLink message to ROS (topic: mavlink, see main())
+	*/
+//	mavlink_pub.publish(rosmavlink_msg);
+
+
+	switch(msg->msgid){
 		case MAVLINK_MSG_ID_HEARTBEAT:
        		{
-//			mavlink_heartbeat_t heartbeat;
-//			mavlink_msg_heartbeat_decode(&message, &heartbeat);
-
-
 			mavlink::Mavlink msg_out = create_heartbeat_msg(msg->seq);
 			chatter_pub.publish(msg_out);
 
-//			if(heartbeat.base_mode & MAV_MODE_FLAG_SAFETY_ARMED){
-//				ROS_INFO("System armed");
+
+			mavlink_heartbeat_t heartbeat;
+			mavlink_msg_heartbeat_decode(&mav_msg, &heartbeat);
+
+
+
+			if(heartbeat.base_mode & MAV_MODE_FLAG_SAFETY_ARMED){
+				ROS_INFO("System armed");
 //				drone_armed = true;
-//			} else {
-//				ROS_INFO("System not armed");
-//			}
+			} else {
+				ROS_INFO("System not armed");
+			}
 	  	}
 	    	break;
 /*

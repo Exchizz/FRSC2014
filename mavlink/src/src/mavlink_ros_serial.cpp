@@ -544,29 +544,33 @@ void* serial_wait(void* serial_ptr)
 //          current_base_mode = heartbeat.base_mode;
 
 
-		std::string output = "";
+		std::stringstream output;
 		if(heartbeat.base_mode & MAV_MODE_FLAG_SAFETY_ARMED){
-			output = "System armed ";
+			output << "System armed ";
 		} else {
-			output = "System not armed ";
+			output << "System not armed ";
 		}
 
 		switch(heartbeat.system_status){
 			case MAV_STATE_ACTIVE:
-				output += "and active ";
+				output << "and active ";
 			break;
 			case MAV_STATE_CALIBRATING:
-				output += "but callibrating ";
+				output << "but callibrating ";
 			break;
 			case MAV_STATE_STANDBY:
-				output += " and standby";
+				output << " and standby";
+			break;
+
+			case MAV_STATE_CRITICAL:
+				output << "but in critical state";
 			break;
 
 			default:
-				output += " unknown system_state: " + (int)heartbeat.system_status;
+				output << " state: " << (int)heartbeat.system_status;
 			break;
 		}
-		std::cout << output << std::endl;
+		std::cout << output.str() << std::endl;
 //      std::cout << "remote sysid: " << (int)message.sysid << std::endl;
 //        got_heartbeat = true;
         }
