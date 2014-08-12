@@ -151,6 +151,7 @@ CMakeFiles/mavlink_send_command_serial.dir/src/mavlink_ros_to_pixhawk_node.cpp.o
 CMakeFiles/mavlink_send_command_serial.dir/src/mavlink_ros_to_pixhawk_node.cpp.o: /opt/ros/indigo/include/ros/wall_timer.h
 CMakeFiles/mavlink_send_command_serial.dir/src/mavlink_ros_to_pixhawk_node.cpp.o: /opt/ros/indigo/include/ros/wall_timer_options.h
 CMakeFiles/mavlink_send_command_serial.dir/src/mavlink_ros_to_pixhawk_node.cpp.o: /opt/ros/indigo/include/rosconsole/macros_generated.h
+CMakeFiles/mavlink_send_command_serial.dir/src/mavlink_ros_to_pixhawk_node.cpp.o: /opt/ros/indigo/include/sensor_msgs/Joy.h
 CMakeFiles/mavlink_send_command_serial.dir/src/mavlink_ros_to_pixhawk_node.cpp.o: /opt/ros/indigo/include/std_msgs/Header.h
 CMakeFiles/mavlink_send_command_serial.dir/src/mavlink_ros_to_pixhawk_node.cpp.o: /opt/ros/indigo/include/std_msgs/String.h
 

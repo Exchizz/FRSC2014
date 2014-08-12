@@ -3,36 +3,101 @@
 #include "mavlink/Mavlink.h"
 #include "mavlink.h"
 #include <sstream>
-
+#include "sensor_msgs/Joy.h"
 
 #define ARM 1
 #define DISARM 0
-/*
-uint8 len
-uint8 seq
-uint8 sysid
-uint8 compid
-uint8 msgid
-bool fromlcm
-uint64[] payload64
-*/
+#define RC_OFFSET 1000
+#define RC_INCREMENT 1000
 
-/*
- int16_t checksum;
-int8_t magic;
-int8_t len;
-int8_t seq;
-int8_t sysid;
-int8_t compid;
-int8_t msgid;
-int64_t payload64[33];
-*/
+#define JOY_AXES_THRUST 1
+#define JOY_RIGHT_BACK_BUTTON 5
+#define JOY_LEFT_BACK_BUTTON 4
+
 int seq = 0;
 bool arm_sent = false;
 bool got_heartbeat = false;
 
 mavlink::Mavlink create_heartbeat_msg(int seq);
+mavlink::Mavlink create_arm_msg(bool);
+mavlink::Mavlink create_rc_override_msg(int, int, int, int);
+
 ros::Publisher chatter_pub;
+ros::Subscriber joy_sub;
+
+
+void joyCallback(const sensor_msgs::Joy::ConstPtr& joy){
+	mavlink::Mavlink msg_out;
+	bool button_press=false;
+	static bool last_button_press = false;
+	int ch3 = 0;
+
+//	if(joy->buttons[JOY_B_BUTTON]){
+//		msg_out = create_
+//	}
+
+	if(joy->buttons[JOY_RIGHT_BACK_BUTTON]){ // Button RB pushed
+		ROS_INFO("JOY -> armed");
+		msg_out = create_arm_msg(ARM);
+		button_press = true;
+	}
+
+	if(joy->buttons[JOY_LEFT_BACK_BUTTON]){ //Button LB pushed
+		ROS_INFO("JOY -> disarmed");
+		msg_out = create_arm_msg(DISARM);
+		button_press = true;
+	}
+
+	chatter_pub.publish(msg_out);
+
+	if(button_press == last_button_press){ //if a button has been pressd, don't send RC
+		ch3 = RC_OFFSET + joy->axes[JOY_AXES_THRUST]*RC_INCREMENT;
+
+		ROS_INFO("Joy-> %i", ch3);
+
+		mavlink::Mavlink msg_out = create_rc_override_msg(NULL, NULL, ch3, NULL);
+		chatter_pub.publish(msg_out);
+	}
+
+	last_button_press = button_press;
+        //joy->axes[0]; yaw
+	//joy->axes[1]; thrust
+//        ch3 = joy->axes[1];
+//        if(x_axis > 0.755){
+//                x_axis = 0.755;
+//        }
+
+}
+
+
+/*
+PS3frobyte::PS3frobyte(){
+        deadman_button.data = false;
+        z_axis = 0;
+        x_axis = 0;
+
+        sub = n.subscribe("/joy", 1000, &PS3frobyte::joyCallback, this);
+        twist_pub_ = n.advertise<geometry_msgs::TwistStamped>("/fmSignals/cmd_vel", 1000);
+        deadman_pub_ = n.advertise<std_msgs::Bool>("/fmSignals/deadman", 1000);
+}
+
+void PS3frobyte::updateDeadman(){
+        //called every 0.1 sec to publish deadman
+        deadman_pub_.publish(deadman_button);
+}
+
+void PS3frobyte::updateVel(){
+        //called every 0.1 sec to publish cmd_vel
+        twist.twist.angular.z = z_axis;
+        twist.twist.linear.x = x_axis;
+
+        std::cout << "x: " << x_axis << "\t";
+        std::cout << "z: " << z_axis << "\n";
+        twist_pub_.publish(twist);
+}
+*/
+
+
 
 void chatterCallback(const mavlink::Mavlink::ConstPtr& msg){
 
@@ -48,6 +113,9 @@ void chatterCallback(const mavlink::Mavlink::ConstPtr& msg){
 
 	copy(msg->payload64.begin(), msg->payload64.end(), mav_msg.payload64);
 
+//	for(int i = 0; i < 33; ++i){
+//		std::cout << "our: " << i << ": " << mav_msg.payload64[i] << std::endl;
+//	}
 
 
 //	mavlink::Mavlink rosmavlink_msg;
@@ -88,19 +156,30 @@ void chatterCallback(const mavlink::Mavlink::ConstPtr& msg){
 			}
 	  	}
 	    	break;
-/*
-		case MAVLINK_MSG_ID_SYSTEM_TIME:
-//			ROS_INFO("Recv: System time");
-		break;
 
-		case MAVLINK_MSG_ID_RAW_IMU :
+//		case MAVLINK_MSG_ID_SYSTEM_TIME:
+//			ROS_INFO("Recv: System time");
+//		break;
+
+//		case MAVLINK_MSG_ID_RAW_IMU :
 //			ROS_INFO("Recv: Raw IMU");
-		break;
+//		break;
 
 		case MAVLINK_MSG_ID_SYS_STATUS:
-//			ROS_INFO("Recv: SYS status");
-		break;
+		{
+			mavlink_sys_status_t sys_status;
+			mavlink_msg_sys_status_decode(&mav_msg, &sys_status);
 
+			for(int i = 0; i < 33; ++i){
+				std::cout << "our: " << i << ": " << mav_msg.payload64[i] << std::endl;
+			}
+
+
+//			ROS_INFO("Recv: SYS status");
+			ROS_INFO("Battery remaining: %d %%", sys_status.battery_remaining);
+		}
+		break;
+/*
 		case MAVLINK_MSG_ID_MISSION_CURRENT:
 //			ROS_INFO("Recv: Mission current");
 		break;
@@ -144,13 +223,24 @@ void chatterCallback(const mavlink::Mavlink::ConstPtr& msg){
 	}
 
 }
-mavlink::Mavlink create_rc_override_msg(){
+mavlink::Mavlink create_rc_override_msg(int RC1_parm, int RC2_parm, int RC3_parm, int RC4_parm){
+	static int RC1 = 1000;
+	static int RC2 = 1000;
+	static int RC3 = 1000;
+	static int RC4 = 1000;
 
-	static int ch3 = 1000;
-	static int increment = 200;
+	if(RC1_parm != NULL) RC1 = RC1_parm;
+	if(RC2_parm != NULL) RC2 = RC2_parm;
+	if(RC3_parm != NULL) RC3 = RC3_parm;
+	if(RC4_parm != NULL) RC4 = RC4_parm;
+
+
+
+//	static int ch3 = 1000;
+//	static int increment = 200;
 
 	ROS_INFO("RC_override sent");
-	std::cout << "ch3 value: " << ch3 << std::endl;
+//	std::cout << "ch3 value: " << ch3 << std::endl;
 	mavlink_message_t msg_first = {0};
 	mavlink::Mavlink msg_out;
 
@@ -162,11 +252,11 @@ mavlink::Mavlink create_rc_override_msg(){
 	msg_out.fromlcm=false;
 
 	mavlink_rc_channels_override_t packet;
-	packet.chan1_raw = 1000;
-	packet.chan2_raw = 1000;
-	packet.chan3_raw = 1200;
-	packet.chan4_raw = 1000;
-	packet.chan5_raw = ch3+=increment;
+	packet.chan1_raw = RC1;
+	packet.chan2_raw = RC2;
+	packet.chan3_raw = RC3;
+	packet.chan4_raw = RC4;
+	packet.chan5_raw = 1000;
 	packet.chan6_raw = 1000;
 	packet.chan7_raw = 1000;
 	packet.chan8_raw = 1000;
@@ -179,9 +269,9 @@ mavlink::Mavlink create_rc_override_msg(){
 		msg_out.payload64.push_back(msg_first.payload64[i]);
 	}
 
-	if(ch3 >= 2000 || ch3 <= 1000){
-		increment = -increment;
-	}
+//	if(ch3 >= 2000 || ch3 <= 1000){
+//		increment = -increment;
+//	}
 
 
 	return msg_out;
@@ -209,7 +299,7 @@ mavlink::Mavlink create_arm_msg(bool ARM_state){
 	}
 
 	mavlink_command_long_t packet;
-	packet.param1 = 1;
+	packet.param1 = ARM_state == ARM ? 1 : 0;
 	packet.param2 = 0;
 	packet.param3 = 0;
 	packet.param4 = 0;
@@ -276,41 +366,51 @@ int main(int argc, char **argv){
   ros::NodeHandle n;
 
   chatter_pub = n.advertise<mavlink::Mavlink>("/mavlink/to", 1000);
+  joy_sub = n.subscribe("/joy", 1000, joyCallback);
   ros::Subscriber sub = n.subscribe("/mavlink/from", 1000, chatterCallback);
   ros::Rate loop_rate(1);
 
   int counter = 0;
 
+//  std::cout << "Waiting...5 sec" << std::endl;
+//  ros::Duration(5).sleep();
+//  std::cout << "Begnning" << std::endl;
+//        if(got_heartbeat && !arm_sent){
+//  mavlink::Mavlink msg_out = create_arm_msg(ARM);
+//  chatter_pub.publish(msg_out);
+//  arm_sent = true;
+//        }
 
-
-  while(ros::ok()){
+//  while(ros::ok()){
 
 //	mavlink::Mavlink msg_out = create_heartbeat_msg();
 //	chatter_pub.publish(msg_out);
 
-	std::cout << "counter: "<< counter << std::endl;
+//	std::cout << "counter: "<< counter << std::endl;
 
-	if(got_heartbeat && !arm_sent){
-		mavlink::Mavlink msg_out = create_arm_msg(ARM);
-		chatter_pub.publish(msg_out);
-		arm_sent = true;
-	}
+//	if(got_heartbeat && !arm_sent){
+//		mavlink::Mavlink msg_out = create_arm_msg(ARM);
+//		chatter_pub.publish(msg_out);
+//		arm_sent = true;
+//	}
 
-	if(counter == 3){
-		mavlink::Mavlink msg_out = create_rc_override_msg();
-		chatter_pub.publish(msg_out);
-	}
+//	if(counter == 3){
+//		mavlink::Mavlink msg_out = create_rc_override_msg();
+//		chatter_pub.publish(msg_out);
+//	}
 
 	//overrun
-	counter=(++counter)%9;
+//	counter=(++counter)%9;
 
 //    chatter_pub.publish((mavlink::Mavlink)msg);
-	ros::spinOnce();
+//	ros::spinOnce();
 
-	loop_rate.sleep();
+//	loop_rate.sleep();
 
-	++seq;
-   }
+//	++seq;
+//   }
+
+  ros::spin();
   return 0;
 }
 

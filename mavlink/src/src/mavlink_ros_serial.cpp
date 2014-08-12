@@ -336,6 +336,7 @@ void* serial_wait(void* serial_ptr)
     {
       if (!silent)
         fprintf(stderr, "ERROR: Could not read from port %s\n", port.c_str());
+	exit(0);
     }
 
     // If a message could be decoded, handle it
@@ -382,7 +383,8 @@ void* serial_wait(void* serial_ptr)
       rosmavlink_msg.compid = message.compid;
       rosmavlink_msg.msgid = message.msgid;
 
-      for (int i = 0; i < message.len / 8; i++)
+//      for (int i = 0; i < message.len / 8; i++)
+      for (int i = 0; i < 33; i++)
       {
         (rosmavlink_msg.payload64).push_back(message.payload64[i]);
       }
@@ -533,6 +535,20 @@ void* serial_wait(void* serial_ptr)
           std::cout << "status message: " <<  status.text << std::endl;
         }
         break;
+
+       case MAVLINK_MSG_ID_SYS_STATUS:
+       {
+
+          for(int i = 0; i < 33; ++i){
+                   std::cout << "our: " << i << ": " << message.payload64[i] << std::endl;
+          }
+       mavlink_sys_status_t sys_status;
+       mavlink_msg_sys_status_decode(&message, &sys_status);
+
+//     ROS_INFO("Recv: SYS status");
+       ROS_INFO("Battery remaining: %d %%", sys_status.battery_remaining);
+       }
+       break;
 
 
       case MAVLINK_MSG_ID_HEARTBEAT:

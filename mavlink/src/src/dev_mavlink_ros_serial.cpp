@@ -535,6 +535,7 @@ void* serial_wait(void* serial_ptr)
         break;
 
 
+
       case MAVLINK_MSG_ID_HEARTBEAT:
         {
           /* decode message */
