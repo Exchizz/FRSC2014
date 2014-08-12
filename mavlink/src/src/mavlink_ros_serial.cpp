@@ -539,14 +539,14 @@ void* serial_wait(void* serial_ptr)
        case MAVLINK_MSG_ID_SYS_STATUS:
        {
 
-          for(int i = 0; i < 33; ++i){
-                   std::cout << "our: " << i << ": " << message.payload64[i] << std::endl;
-          }
+//          for(int i = 0; i < 33; ++i){
+//                   std::cout << "our: " << i << ": " << message.payload64[i] << std::endl;
+//          }
        mavlink_sys_status_t sys_status;
        mavlink_msg_sys_status_decode(&message, &sys_status);
 
 //     ROS_INFO("Recv: SYS status");
-       ROS_INFO("Battery remaining: %d %%", sys_status.battery_remaining);
+//       ROS_INFO("Battery remaining: %d %%", sys_status.battery_remaining);
        }
        break;
 
@@ -575,7 +575,7 @@ void* serial_wait(void* serial_ptr)
 				output << "but callibrating ";
 			break;
 			case MAV_STATE_STANDBY:
-				output << " and standby";
+				output << "and standby";
 			break;
 
 			case MAV_STATE_CRITICAL:

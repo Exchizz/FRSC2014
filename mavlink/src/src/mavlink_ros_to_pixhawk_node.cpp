@@ -7,10 +7,16 @@
 
 #define ARM 1
 #define DISARM 0
-#define RC_OFFSET 1000
-#define RC_INCREMENT 1000
+#define RC_OFFSET 1500
+#define RC_INCREMENT 500
 
-#define JOY_AXES_THRUST 1
+#define JOY_BUTTON_B      1
+
+#define JOY_AXES_YAW      0
+#define JOY_AXES_THRUST   1
+#define JOY_AXES_ROLL     3
+#define JOY_AXES_PITCH    4
+
 #define JOY_RIGHT_BACK_BUTTON 5
 #define JOY_LEFT_BACK_BUTTON 4
 
@@ -24,17 +30,21 @@ mavlink::Mavlink create_rc_override_msg(int, int, int, int);
 
 ros::Publisher chatter_pub;
 ros::Subscriber joy_sub;
-
+bool show_battery = false;
 
 void joyCallback(const sensor_msgs::Joy::ConstPtr& joy){
 	mavlink::Mavlink msg_out;
 	bool button_press=false;
 	static bool last_button_press = false;
+	int ch1 = 0;
+	int ch2 = 0;
 	int ch3 = 0;
+	int ch4 = 0;
 
-//	if(joy->buttons[JOY_B_BUTTON]){
-//		msg_out = create_
-//	}
+	if(joy->buttons[JOY_BUTTON_B]){
+		show_battery = true;
+		button_press = true;
+	}
 
 	if(joy->buttons[JOY_RIGHT_BACK_BUTTON]){ // Button RB pushed
 		ROS_INFO("JOY -> armed");
@@ -51,11 +61,15 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy){
 	chatter_pub.publish(msg_out);
 
 	if(button_press == last_button_press){ //if a button has been pressd, don't send RC
+
+		ch1 = RC_OFFSET + joy->axes[JOY_AXES_ROLL]*RC_INCREMENT;
+		ch2 = RC_OFFSET + joy->axes[JOY_AXES_PITCH]*RC_INCREMENT;
 		ch3 = RC_OFFSET + joy->axes[JOY_AXES_THRUST]*RC_INCREMENT;
+		ch4 = RC_OFFSET + joy->axes[JOY_AXES_YAW]*RC_INCREMENT;
 
-		ROS_INFO("Joy-> %i", ch3);
+		ROS_INFO("Joy-> CH1 %i, CH2 %i, CH3 %i, CH4 %i", ch1, ch2, ch3, ch4);
 
-		mavlink::Mavlink msg_out = create_rc_override_msg(NULL, NULL, ch3, NULL);
+		mavlink::Mavlink msg_out = create_rc_override_msg(ch1, ch2, ch3, ch4);
 		chatter_pub.publish(msg_out);
 	}
 
@@ -170,13 +184,11 @@ void chatterCallback(const mavlink::Mavlink::ConstPtr& msg){
 			mavlink_sys_status_t sys_status;
 			mavlink_msg_sys_status_decode(&mav_msg, &sys_status);
 
-			for(int i = 0; i < 33; ++i){
-				std::cout << "our: " << i << ": " << mav_msg.payload64[i] << std::endl;
-			}
-
-
 //			ROS_INFO("Recv: SYS status");
-			ROS_INFO("Battery remaining: %d %%", sys_status.battery_remaining);
+			if(show_battery){
+				show_battery = false;
+				ROS_INFO("Battery remaining: %d %%", sys_status.battery_remaining);
+			}
 		}
 		break;
 /*
