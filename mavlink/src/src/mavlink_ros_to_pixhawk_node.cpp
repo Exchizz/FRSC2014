@@ -10,15 +10,29 @@
 #define RC_OFFSET 1500
 #define RC_INCREMENT 500
 
+#define JOY_BUTTON_A      0
 #define JOY_BUTTON_B      1
+#define JOY_BUTTON_Y	  3
+#define JOY_BUTTON_X	  2
 
 #define JOY_AXES_YAW      0
 #define JOY_AXES_THRUST   1
 #define JOY_AXES_ROLL     3
 #define JOY_AXES_PITCH    4
 
+#define JOY_BINARY_PAD    7
 #define JOY_RIGHT_BACK_BUTTON 5
 #define JOY_LEFT_BACK_BUTTON 4
+
+#define MODE_ALTITUDE 1500
+#define MODE_AUTO 2000
+
+///////////CUSTOM MODES////////
+#define HOLD_ALTITUDE 1
+//////////////////////////////
+#define RC6_ARM   2000
+
+#define ALTITUDE_KP 10
 
 int seq = 0;
 bool arm_sent = false;
@@ -27,6 +41,11 @@ bool got_heartbeat = false;
 mavlink::Mavlink create_heartbeat_msg(int seq);
 mavlink::Mavlink create_arm_msg(bool);
 mavlink::Mavlink create_rc_override_msg(int, int, int, int);
+mavlink::Mavlink create_manual_control_msg(int x, int y, int z, int r, int buttons);
+
+
+bool ch_reset = false;
+int mode = 0;
 
 ros::Publisher chatter_pub;
 ros::Subscriber joy_sub;
@@ -38,7 +57,7 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy){
 	static bool last_button_press = false;
 	int ch1 = 0;
 	int ch2 = 0;
-	int ch3 = 0;
+	static int ch3 = 1000;
 	int ch4 = 0;
 
 	if(joy->buttons[JOY_BUTTON_B]){
@@ -58,18 +77,53 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy){
 		button_press = true;
 	}
 
+
+	if(joy->axes[JOY_BINARY_PAD] == 1){ //up
+		ROS_INFO("upp");
+		ch3+=100;
+	}
+
+	if(joy->axes[JOY_BINARY_PAD] == -1){ //down
+		ROS_INFO("down");
+		ch3-=100;
+	}
+
+
+	if(joy->buttons[JOY_BUTTON_Y]){
+		ch_reset = true;
+	}
+
+	if(joy->buttons[JOY_BUTTON_A]){
+		ch_reset = false;
+	}
+
+	if(joy->buttons[JOY_BUTTON_X]){
+		mode =  HOLD_ALTITUDE;
+	}
+
+
 	chatter_pub.publish(msg_out);
 
 	if(button_press == last_button_press){ //if a button has been pressd, don't send RC
 
 		ch1 = RC_OFFSET + joy->axes[JOY_AXES_ROLL]*RC_INCREMENT;
 		ch2 = RC_OFFSET + joy->axes[JOY_AXES_PITCH]*RC_INCREMENT;
-		ch3 = RC_OFFSET + joy->axes[JOY_AXES_THRUST]*RC_INCREMENT;
+//		ch3 = 1000 + joy->axes[JOY_AXES_THRUST]*1000;
 		ch4 = RC_OFFSET + joy->axes[JOY_AXES_YAW]*RC_INCREMENT;
 
-		ROS_INFO("Joy-> CH1 %i, CH2 %i, CH3 %i, CH4 %i", ch1, ch2, ch3, ch4);
+///		ch1 = joy->axes[JOY_AXES_ROLL]*1000;
+//		ch2 = joy->axes[JOY_AXES_PITCH]*1000;
+//		ch3 = joy->axes[JOY_AXES_THRUST]*1000;
+//		ch4 = joy->axes[JOY_AXES_YAW]*1000;
+
+		if(ch3 <= 1000) ch3 = 1000;
+		if(ch3 >= 2000) ch3 = 2000;
+
+
+		int buttons  = 0;
 
 		mavlink::Mavlink msg_out = create_rc_override_msg(ch1, ch2, ch3, ch4);
+//		mavlink::Mavlink msg_out = create_manual_control_msg(ch1, ch2, ch3, ch4, buttons);
 		chatter_pub.publish(msg_out);
 	}
 
@@ -114,7 +168,8 @@ void PS3frobyte::updateVel(){
 
 
 void chatterCallback(const mavlink::Mavlink::ConstPtr& msg){
-
+	static bool altitude_locked = false;
+	static int setpoint_altitude = 0;
 
 	mavlink_message_t mav_msg;
 
@@ -191,6 +246,44 @@ void chatterCallback(const mavlink::Mavlink::ConstPtr& msg){
 			}
 		}
 		break;
+
+		case MAVLINK_MSG_ID_GLOBAL_POSITION_INT:
+		{
+			mavlink_global_position_int_t global_position;
+			mavlink_msg_global_position_int_decode(&mav_msg, &global_position);
+
+
+			if(mode == HOLD_ALTITUDE){
+				int current_altitude = global_position.alt;
+
+				if(setpoint_altitude == 0){
+					setpoint_altitude = current_altitude;
+					ROS_WARN("altitude locked");
+				}
+
+				int error = setpoint_altitude - current_altitude;
+				int ch3 = 1500 + (error*ALTITUDE_KP);
+
+				ROS_INFO("altitude error : %d", error);
+
+		                if(ch3 <= 1000) ch3 = 1000;
+		                if(ch3 >= 2000) ch3 = 2000;
+				ROS_WARN("ch3: %d", ch3);
+
+
+		                mavlink::Mavlink msg_out = create_rc_override_msg(1000, 1000, ch3, 1000);
+		                chatter_pub.publish(msg_out);
+//dev
+
+			}
+
+
+
+			ROS_INFO("Altitude: %d", global_position.alt);
+		}
+		break;
+
+
 /*
 		case MAVLINK_MSG_ID_MISSION_CURRENT:
 //			ROS_INFO("Recv: Mission current");
@@ -201,9 +294,6 @@ void chatterCallback(const mavlink::Mavlink::ConstPtr& msg){
 		break;
 		case  MAVLINK_MSG_ID_NAV_CONTROLLER_OUTPUT:
 //			ROS_INFO("Recv: NAV controller output");
-		break;
-		case MAVLINK_MSG_ID_GLOBAL_POSITION_INT:
-//			ROS_INFO("Recv: global postion int");
 		break;
 		case MAVLINK_MSG_ID_RC_CHANNELS_RAW:
 //			ROS_INFO("Recv: RC channels raw");
@@ -233,13 +323,51 @@ void chatterCallback(const mavlink::Mavlink::ConstPtr& msg){
 //		}
 
 	}
-
 }
+
+mavlink::Mavlink create_manual_control_msg(int x, int y, int z, int r, int buttons){
+	mavlink_message_t msg_first = {0};
+	mavlink::Mavlink msg_out;
+
+
+	ROS_INFO("Joy-> CH1 %i, CH2 %i, CH3 %i, CH4 %i", x, y, z, r);
+
+
+	msg_out.seq=seq++;
+	msg_out.len=MAVLINK_MSG_ID_MANUAL_CONTROL_LEN;
+	msg_out.sysid=255;
+	msg_out.compid=0;
+	msg_out.msgid=MAVLINK_MSG_ID_MANUAL_CONTROL;
+	msg_out.fromlcm=false;
+
+	mavlink_manual_control_t packet;
+
+	packet.target = 255;
+	packet.x = x;
+	packet.y = y;
+	packet.z = z;
+	packet.r = r;
+	packet.buttons = buttons;
+
+	memcpy(_MAV_PAYLOAD_NON_CONST(&msg_first), &packet, 33);
+
+	for(int i = 0; i < 33; ++i){
+		msg_out.payload64.push_back(msg_first.payload64[i]);
+	}
+	return msg_out;
+}
+
+
 mavlink::Mavlink create_rc_override_msg(int RC1_parm, int RC2_parm, int RC3_parm, int RC4_parm){
 	static int RC1 = 1000;
 	static int RC2 = 1000;
 	static int RC3 = 1000;
 	static int RC4 = 1000;
+	int RC5 = MODE_ALTITUDE;
+	int RC6 = RC6_ARM;
+	int RC7 = 0;
+	int RC8 = 0;
+
 
 	if(RC1_parm != NULL) RC1 = RC1_parm;
 	if(RC2_parm != NULL) RC2 = RC2_parm;
@@ -263,15 +391,25 @@ mavlink::Mavlink create_rc_override_msg(int RC1_parm, int RC2_parm, int RC3_parm
 	msg_out.msgid=MAVLINK_MSG_ID_RC_CHANNELS_OVERRIDE;
 	msg_out.fromlcm=false;
 
+
+
+
+        if(ch_reset){
+        	RC1 = RC2 = RC3 = RC4 = RC5 = RC6 = RC7 = RC8 = 0;
+        }
+
+	ROS_INFO("Joy-> CH1 %i, CH2 %i, CH3 %i, CH4 %i", RC1, RC2, RC3, RC4);
+
+
 	mavlink_rc_channels_override_t packet;
 	packet.chan1_raw = RC1;
 	packet.chan2_raw = RC2;
 	packet.chan3_raw = RC3;
 	packet.chan4_raw = RC4;
-	packet.chan5_raw = 1000;
-	packet.chan6_raw = 1000;
-	packet.chan7_raw = 1000;
-	packet.chan8_raw = 1000;
+	packet.chan5_raw = RC5;
+	packet.chan6_raw = RC6;
+	packet.chan7_raw = RC7;
+	packet.chan8_raw = RC8;
 	packet.target_system = 1;
 	packet.target_component = 0;
 
