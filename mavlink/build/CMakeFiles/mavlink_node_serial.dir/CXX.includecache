@@ -6,24 +6,6 @@
 
 #IncludeRegexTransform: 
 
-/home/exchizz/ROS/Projects/UAV/mavlink/devel/include/mavlink/Mavlink.h
-string
--
-vector
--
-map
--
-ros/types.h
--
-ros/serialization.h
--
-ros/builtin_message_traits.h
--
-ros/message_operations.h
--
-std_msgs/Header.h
--
-
 /home/exchizz/ROS/Projects/UAV/mavlink/src/include/mavlink/v1.0/checksum.h
 
 /home/exchizz/ROS/Projects/UAV/mavlink/src/include/mavlink/v1.0/common/./mavlink_msg_attitude.h
