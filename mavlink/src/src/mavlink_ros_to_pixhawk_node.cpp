@@ -33,7 +33,15 @@
 //////////////////////////////
 #define RC6_ARM   2000
 
-#define ALTITUDE_KP 0.2
+#define ALTITUDE_KP_UP 0.06
+#define ALTITUDE_KP_DOWN 0.02
+
+
+//history
+//0.05= good but oscillates
+//0.001 still up
+//0.2 too hight
+
 
 int seq = 0;
 bool arm_sent = false;
@@ -200,11 +208,18 @@ void chatterCallback(const mavlink::Mavlink::ConstPtr& msg){
 				}
 
 				int error = setpoint_altitude - current_altitude;
-				int ch3 = 1700 + (error*ALTITUDE_KP); //change to 1700
+				int ch3 = 0;
+				if(error > 0 ){
+					ch3 = 1550 + (error*ALTITUDE_KP_UP); //change to 1700
+
+				} else {
+					ch3 = 1550 + (error*ALTITUDE_KP_DOWN); //change to 1700
+				}
+
 
 				ROS_INFO("altitude error : %d", error);
 
-		                if(ch3 <= RC_OFFSET) ch3 = RC_OFFSET;
+		                if(ch3 <= 1000) ch3 = 1000; //changed from 1500 to 1000
 		                if(ch3 >= 2000) ch3 = 2000;
 				ROS_WARN("ch3: %d", ch3);
 
