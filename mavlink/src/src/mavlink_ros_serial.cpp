@@ -70,13 +70,14 @@ using namespace std;
 
 struct timeval tv;		  ///< System time
 
-int baud = 115200;                 ///< The serial baud rate
+int baud = 57600;                 ///< The serial baud rate
 
 // Settings
 int sysid = 42;             ///< The unique system id of this MAV, 0-127. Has to be consistent across the system
 int compid = 110;
 int serial_compid = 0;
-std::string port = "/dev/ttyUSB0";              ///< The serial port name, e.g. /dev/ttyUSB0
+std::string port = "/dev/rc";              ///< The serial port name, e.g. /dev/ttyUSB0
+//std::string port = "/dev/pts/15";              ///< The serial port name, e.g. /dev/ttyUSB0
 bool silent = false;              ///< Wether console output should be enabled
 bool verbose = false;             ///< Enable verbose output
 bool debug = false;               ///< Enable debug functions and output

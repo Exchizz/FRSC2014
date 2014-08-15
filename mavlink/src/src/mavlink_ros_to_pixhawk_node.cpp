@@ -29,10 +29,11 @@
 
 ///////////CUSTOM MODES////////
 #define HOLD_ALTITUDE 1
+#define MANUAL 0
 //////////////////////////////
 #define RC6_ARM   2000
 
-#define ALTITUDE_KP 10
+#define ALTITUDE_KP 0.2
 
 int seq = 0;
 bool arm_sent = false;
@@ -45,7 +46,7 @@ mavlink::Mavlink create_manual_control_msg(int x, int y, int z, int r, int butto
 
 
 bool ch_reset = false;
-int mode = 0;
+int mode = MANUAL;
 
 ros::Publisher chatter_pub;
 ros::Subscriber joy_sub;
@@ -57,7 +58,7 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy){
 	static bool last_button_press = false;
 	int ch1 = 0;
 	int ch2 = 0;
-	static int ch3 = 1000;
+	static int ch3 = 0; //changed to 1700 from 1000
 	int ch4 = 0;
 
 	if(joy->buttons[JOY_BUTTON_B]){
@@ -91,6 +92,7 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy){
 
 	if(joy->buttons[JOY_BUTTON_Y]){
 		ch_reset = true;
+		mode = MANUAL;
 	}
 
 	if(joy->buttons[JOY_BUTTON_A]){
@@ -111,60 +113,19 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy){
 //		ch3 = 1000 + joy->axes[JOY_AXES_THRUST]*1000;
 		ch4 = RC_OFFSET + joy->axes[JOY_AXES_YAW]*RC_INCREMENT;
 
-///		ch1 = joy->axes[JOY_AXES_ROLL]*1000;
-//		ch2 = joy->axes[JOY_AXES_PITCH]*1000;
-//		ch3 = joy->axes[JOY_AXES_THRUST]*1000;
-//		ch4 = joy->axes[JOY_AXES_YAW]*1000;
-
-		if(ch3 <= 1000) ch3 = 1000;
+		if(ch3 <= RC_OFFSET) ch3 = RC_OFFSET;
 		if(ch3 >= 2000) ch3 = 2000;
 
-
-		int buttons  = 0;
+//Setting channels to zero to keep control to the transmitter
+		ch1 = ch2 = ch4 = 0;
 
 		mavlink::Mavlink msg_out = create_rc_override_msg(ch1, ch2, ch3, ch4);
-//		mavlink::Mavlink msg_out = create_manual_control_msg(ch1, ch2, ch3, ch4, buttons);
 		chatter_pub.publish(msg_out);
 	}
 
 	last_button_press = button_press;
-        //joy->axes[0]; yaw
-	//joy->axes[1]; thrust
-//        ch3 = joy->axes[1];
-//        if(x_axis > 0.755){
-//                x_axis = 0.755;
-//        }
 
 }
-
-
-/*
-PS3frobyte::PS3frobyte(){
-        deadman_button.data = false;
-        z_axis = 0;
-        x_axis = 0;
-
-        sub = n.subscribe("/joy", 1000, &PS3frobyte::joyCallback, this);
-        twist_pub_ = n.advertise<geometry_msgs::TwistStamped>("/fmSignals/cmd_vel", 1000);
-        deadman_pub_ = n.advertise<std_msgs::Bool>("/fmSignals/deadman", 1000);
-}
-
-void PS3frobyte::updateDeadman(){
-        //called every 0.1 sec to publish deadman
-        deadman_pub_.publish(deadman_button);
-}
-
-void PS3frobyte::updateVel(){
-        //called every 0.1 sec to publish cmd_vel
-        twist.twist.angular.z = z_axis;
-        twist.twist.linear.x = x_axis;
-
-        std::cout << "x: " << x_axis << "\t";
-        std::cout << "z: " << z_axis << "\n";
-        twist_pub_.publish(twist);
-}
-*/
-
 
 
 void chatterCallback(const mavlink::Mavlink::ConstPtr& msg){
@@ -181,29 +142,6 @@ void chatterCallback(const mavlink::Mavlink::ConstPtr& msg){
 	mav_msg.msgid = msg->msgid;
 
 	copy(msg->payload64.begin(), msg->payload64.end(), mav_msg.payload64);
-
-//	for(int i = 0; i < 33; ++i){
-//		std::cout << "our: " << i << ": " << mav_msg.payload64[i] << std::endl;
-//	}
-
-
-//	mavlink::Mavlink rosmavlink_msg;
-
-//	rosmavlink_msg.len = message.len;
-//	rosmavlink_msg.seq = message.seq;
-//	rosmavlink_msg.sysid = message.sysid;
-//	rosmavlink_msg.compid = message.compid;
-//	rosmavlink_msg.msgid = message.msgid;
-
-//	for (int i = 0; i < message.len / 8; i++){
-//        	(rosmavlink_msg.payload64).push_back(message.payload64[i]);
-//	}
-
-	/**
-	  * Send the received MAVLink message to ROS (topic: mavlink, see main())
-	*/
-//	mavlink_pub.publish(rosmavlink_msg);
-
 
 	switch(msg->msgid){
 		case MAVLINK_MSG_ID_HEARTBEAT:
@@ -262,18 +200,17 @@ void chatterCallback(const mavlink::Mavlink::ConstPtr& msg){
 				}
 
 				int error = setpoint_altitude - current_altitude;
-				int ch3 = 1500 + (error*ALTITUDE_KP);
+				int ch3 = 1700 + (error*ALTITUDE_KP); //change to 1700
 
 				ROS_INFO("altitude error : %d", error);
 
-		                if(ch3 <= 1000) ch3 = 1000;
+		                if(ch3 <= RC_OFFSET) ch3 = RC_OFFSET;
 		                if(ch3 >= 2000) ch3 = 2000;
 				ROS_WARN("ch3: %d", ch3);
 
 
-		                mavlink::Mavlink msg_out = create_rc_override_msg(1000, 1000, ch3, 1000);
+		                mavlink::Mavlink msg_out = create_rc_override_msg(0, 0, ch3, 0);
 		                chatter_pub.publish(msg_out);
-//dev
 
 			}
 
@@ -282,46 +219,6 @@ void chatterCallback(const mavlink::Mavlink::ConstPtr& msg){
 			ROS_INFO("Altitude: %d", global_position.alt);
 		}
 		break;
-
-
-/*
-		case MAVLINK_MSG_ID_MISSION_CURRENT:
-//			ROS_INFO("Recv: Mission current");
-		break;
-
-		case MAVLINK_MSG_ID_GPS_RAW_INT:
-//			ROS_INFO("Recv: GPS Raw int");
-		break;
-		case  MAVLINK_MSG_ID_NAV_CONTROLLER_OUTPUT:
-//			ROS_INFO("Recv: NAV controller output");
-		break;
-		case MAVLINK_MSG_ID_RC_CHANNELS_RAW:
-//			ROS_INFO("Recv: RC channels raw");
-		break;
-		case MAVLINK_MSG_ID_SERVO_OUTPUT_RAW:
-//			ROS_INFO("Recv: Server output raw");
-		break;
-		case MAVLINK_MSG_ID_ATTITUDE:
-//			ROS_INFO("Recv: attitude");
-		break;
-		case MAVLINK_MSG_ID_VFR_HUD:
-//			ROS_INFO("Recv: vfr_hud");
-		break;
-		case MAVLINK_MSG_ID_SCALED_PRESSURE:
-//			ROS_INFO("Recv: scaled pressure");
-		break;
-
-
-
-		default:
-//			ROS_INFO("%s %i", "Recv: Unknown command. msgid: ",msg->msgid);
-		break;
-*/
-
-//		for(int i = 0; i < msg->payload64.size(); ++i){
-//			std::cout << "parm " << i << ": " << msg->payload64[i] << std::endl;
-//		}
-
 	}
 }
 
@@ -359,14 +256,14 @@ mavlink::Mavlink create_manual_control_msg(int x, int y, int z, int r, int butto
 
 
 mavlink::Mavlink create_rc_override_msg(int RC1_parm, int RC2_parm, int RC3_parm, int RC4_parm){
-	static int RC1 = 1000;
-	static int RC2 = 1000;
-	static int RC3 = 1000;
-	static int RC4 = 1000;
-	int RC5 = MODE_ALTITUDE;
-	int RC6 = RC6_ARM;
-	int RC7 = 0;
-	int RC8 = 0;
+	 int RC1 = 0;
+	 int RC2 = 0;
+	 int RC3 = 0;
+	 int RC4 = 0;
+	 int RC5 = MODE_ALTITUDE;
+	 int RC6 = RC6_ARM;
+	 int RC7 = 0;
+	 int RC8 = 0;
 
 
 	if(RC1_parm != NULL) RC1 = RC1_parm;
@@ -376,11 +273,8 @@ mavlink::Mavlink create_rc_override_msg(int RC1_parm, int RC2_parm, int RC3_parm
 
 
 
-//	static int ch3 = 1000;
-//	static int increment = 200;
 
 	ROS_INFO("RC_override sent");
-//	std::cout << "ch3 value: " << ch3 << std::endl;
 	mavlink_message_t msg_first = {0};
 	mavlink::Mavlink msg_out;
 
@@ -390,8 +284,6 @@ mavlink::Mavlink create_rc_override_msg(int RC1_parm, int RC2_parm, int RC3_parm
 	msg_out.compid=0;
 	msg_out.msgid=MAVLINK_MSG_ID_RC_CHANNELS_OVERRIDE;
 	msg_out.fromlcm=false;
-
-
 
 
         if(ch_reset){
@@ -563,6 +455,7 @@ int main(int argc, char **argv){
   ros::spin();
   return 0;
 }
+
 
 
 
