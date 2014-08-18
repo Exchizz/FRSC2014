@@ -4,6 +4,9 @@
 #include "mavlink.h"
 #include <sstream>
 #include "sensor_msgs/Joy.h"
+#include "std_msgs/Float32MultiArray.h"
+#include <dynamic_reconfigure/server.h>
+#include <mavlink/p_adjustConfig.h>
 
 #define ARM 1
 #define DISARM 0
@@ -46,6 +49,7 @@
 int seq = 0;
 bool arm_sent = false;
 bool got_heartbeat = false;
+bool show_battery = false;
 
 mavlink::Mavlink create_heartbeat_msg(int seq);
 mavlink::Mavlink create_arm_msg(bool);
@@ -57,8 +61,18 @@ bool ch_reset = false;
 int mode = MANUAL;
 
 ros::Publisher chatter_pub;
+ros::Publisher plot_pub;
 ros::Subscriber joy_sub;
-bool show_battery = false;
+
+float p_up = 0;
+float p_down = 0;
+
+
+void callback(mavlink::p_adjustConfig &config, uint32_t level) {
+	ROS_WARN("Update p_up: %f, p-down: %f", config.p_up, config.p_down);
+	p_up = config.p_up;
+	p_down = config.p_down;
+}
 
 void joyCallback(const sensor_msgs::Joy::ConstPtr& joy){
 	mavlink::Mavlink msg_out;
@@ -199,21 +213,24 @@ void chatterCallback(const mavlink::Mavlink::ConstPtr& msg){
 			mavlink_msg_global_position_int_decode(&mav_msg, &global_position);
 
 
+			int current_altitude = global_position.alt;
+			int error = 0;
 			if(mode == HOLD_ALTITUDE){
-				int current_altitude = global_position.alt;
 
 				if(setpoint_altitude == 0){
 					setpoint_altitude = current_altitude;
 					ROS_WARN("altitude locked");
 				}
 
-				int error = setpoint_altitude - current_altitude;
+				error = setpoint_altitude - current_altitude;
 				int ch3 = 0;
 				if(error > 0 ){
-					ch3 = 1550 + (error*ALTITUDE_KP_UP); //change to 1700
+//					ch3 = 1550 + (error*ALTITUDE_KP_UP); //change to 1700
+					ch3 = 1550 + (error*p_up); //change to 1700
 
 				} else {
-					ch3 = 1550 + (error*ALTITUDE_KP_DOWN); //change to 1700
+//					ch3 = 1550 + (error*ALTITUDE_KP_DOWN); //change to 1700
+					ch3 = 1550 + (error*p_down); //change to 1700
 				}
 
 
@@ -224,10 +241,20 @@ void chatterCallback(const mavlink::Mavlink::ConstPtr& msg){
 				ROS_WARN("ch3: %d", ch3);
 
 
+
+
 		                mavlink::Mavlink msg_out = create_rc_override_msg(0, 0, ch3, 0);
 		                chatter_pub.publish(msg_out);
 
 			}
+
+			//plot
+			std_msgs::Float32MultiArray plot_out;
+			plot_out.data.push_back(10);
+			plot_out.data.push_back(20);
+//			plot_out.data.[0] = setpoint_altitude;
+//			plot_out.data.[1] = error;
+			plot_pub.publish(plot_out);
 
 
 
@@ -423,49 +450,19 @@ int main(int argc, char **argv){
   ros::NodeHandle n;
 
   chatter_pub = n.advertise<mavlink::Mavlink>("/mavlink/to", 1000);
+
+  plot_pub = n.advertise<std_msgs::Float32MultiArray>("/fmInformation/error", 1000);
   joy_sub = n.subscribe("/joy", 1000, joyCallback);
   ros::Subscriber sub = n.subscribe("/mavlink/from", 1000, chatterCallback);
+  dynamic_reconfigure::Server<mavlink::p_adjustConfig> server;
+  dynamic_reconfigure::Server<mavlink::p_adjustConfig>::CallbackType f;
+
+  f = boost::bind(&callback, _1, _2);
+  server.setCallback(f);
+
   ros::Rate loop_rate(1);
 
   int counter = 0;
-
-//  std::cout << "Waiting...5 sec" << std::endl;
-//  ros::Duration(5).sleep();
-//  std::cout << "Begnning" << std::endl;
-//        if(got_heartbeat && !arm_sent){
-//  mavlink::Mavlink msg_out = create_arm_msg(ARM);
-//  chatter_pub.publish(msg_out);
-//  arm_sent = true;
-//        }
-
-//  while(ros::ok()){
-
-//	mavlink::Mavlink msg_out = create_heartbeat_msg();
-//	chatter_pub.publish(msg_out);
-
-//	std::cout << "counter: "<< counter << std::endl;
-
-//	if(got_heartbeat && !arm_sent){
-//		mavlink::Mavlink msg_out = create_arm_msg(ARM);
-//		chatter_pub.publish(msg_out);
-//		arm_sent = true;
-//	}
-
-//	if(counter == 3){
-//		mavlink::Mavlink msg_out = create_rc_override_msg();
-//		chatter_pub.publish(msg_out);
-//	}
-
-	//overrun
-//	counter=(++counter)%9;
-
-//    chatter_pub.publish((mavlink::Mavlink)msg);
-//	ros::spinOnce();
-
-//	loop_rate.sleep();
-
-//	++seq;
-//   }
 
   ros::spin();
   return 0;

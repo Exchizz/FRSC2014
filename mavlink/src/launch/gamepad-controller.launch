@@ -1,0 +1,8 @@
+<launch>
+<!--  <node name="ps3frobyte_node" pkg="frobyte_ps3controller" type="ps3frobyte_node" output="screen"/>-->
+	<node name="mavlink_controller" pkg="mavlink" type="mavlink_send_command_serial" output="screen"/>
+	<node name="joy_node" pkg="joy" type="joy_node" />
+	<node name="mavlink_driver" pkg="mavlink" type="mavlink_node_serial" output="screen">
+	</node>
+</launch>
+

@@ -145,7 +145,7 @@ foreach(library ${libraries})
   endif()
 endforeach()
 
-set(mavlink_EXPORTED_TARGETS "mavlink_generate_messages_cpp;mavlink_generate_messages_lisp;mavlink_generate_messages_py")
+set(mavlink_EXPORTED_TARGETS "mavlink_generate_messages_cpp;mavlink_generate_messages_lisp;mavlink_generate_messages_py;mavlink_gencfg")
 # create dummy targets for exported code generation targets to make life of users easier
 foreach(t ${mavlink_EXPORTED_TARGETS})
   if(NOT TARGET ${t})

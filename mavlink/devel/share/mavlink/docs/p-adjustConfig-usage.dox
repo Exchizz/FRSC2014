@@ -1,0 +1,9 @@
+\subsubsection usage Usage
+\verbatim
+<node name="Mavlink" pkg="mavlink" type="Mavlink">
+  <param name="p_up" type="double" value="0.5" />
+  <param name="p_down" type="double" value="0.5" />
+  <param name="size" type="int" value="1" />
+</node>
+\endverbatim
+

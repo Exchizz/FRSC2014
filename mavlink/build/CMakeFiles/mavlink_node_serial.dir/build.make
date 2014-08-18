@@ -90,6 +90,7 @@ mavlink_node_serial_EXTERNAL_OBJECTS =
 /home/exchizz/ROS/Projects/UAV/mavlink/devel/lib/mavlink/mavlink_node_serial: /usr/lib/liblog4cxx.so
 /home/exchizz/ROS/Projects/UAV/mavlink/devel/lib/mavlink/mavlink_node_serial: /usr/lib/x86_64-linux-gnu/libboost_regex.so
 /home/exchizz/ROS/Projects/UAV/mavlink/devel/lib/mavlink/mavlink_node_serial: /opt/ros/indigo/lib/libxmlrpcpp.so
+/home/exchizz/ROS/Projects/UAV/mavlink/devel/lib/mavlink/mavlink_node_serial: /opt/ros/indigo/lib/libdynamic_reconfigure_config_init_mutex.so
 /home/exchizz/ROS/Projects/UAV/mavlink/devel/lib/mavlink/mavlink_node_serial: /opt/ros/indigo/lib/libroscpp_serialization.so
 /home/exchizz/ROS/Projects/UAV/mavlink/devel/lib/mavlink/mavlink_node_serial: /opt/ros/indigo/lib/librostime.so
 /home/exchizz/ROS/Projects/UAV/mavlink/devel/lib/mavlink/mavlink_node_serial: /usr/lib/x86_64-linux-gnu/libboost_date_time.so

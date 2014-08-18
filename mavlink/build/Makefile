@@ -189,6 +189,84 @@ doxygen/fast:
 .PHONY : doxygen/fast
 
 #=============================================================================
+# Target rules for targets named dynamic_reconfigure_gencfg
+
+# Build rule for target.
+dynamic_reconfigure_gencfg: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 dynamic_reconfigure_gencfg
+.PHONY : dynamic_reconfigure_gencfg
+
+# fast build rule for target.
+dynamic_reconfigure_gencfg/fast:
+	$(MAKE) -f CMakeFiles/dynamic_reconfigure_gencfg.dir/build.make CMakeFiles/dynamic_reconfigure_gencfg.dir/build
+.PHONY : dynamic_reconfigure_gencfg/fast
+
+#=============================================================================
+# Target rules for targets named dynamic_reconfigure_generate_messages_cpp
+
+# Build rule for target.
+dynamic_reconfigure_generate_messages_cpp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 dynamic_reconfigure_generate_messages_cpp
+.PHONY : dynamic_reconfigure_generate_messages_cpp
+
+# fast build rule for target.
+dynamic_reconfigure_generate_messages_cpp/fast:
+	$(MAKE) -f CMakeFiles/dynamic_reconfigure_generate_messages_cpp.dir/build.make CMakeFiles/dynamic_reconfigure_generate_messages_cpp.dir/build
+.PHONY : dynamic_reconfigure_generate_messages_cpp/fast
+
+#=============================================================================
+# Target rules for targets named dynamic_reconfigure_generate_messages_lisp
+
+# Build rule for target.
+dynamic_reconfigure_generate_messages_lisp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 dynamic_reconfigure_generate_messages_lisp
+.PHONY : dynamic_reconfigure_generate_messages_lisp
+
+# fast build rule for target.
+dynamic_reconfigure_generate_messages_lisp/fast:
+	$(MAKE) -f CMakeFiles/dynamic_reconfigure_generate_messages_lisp.dir/build.make CMakeFiles/dynamic_reconfigure_generate_messages_lisp.dir/build
+.PHONY : dynamic_reconfigure_generate_messages_lisp/fast
+
+#=============================================================================
+# Target rules for targets named dynamic_reconfigure_generate_messages_py
+
+# Build rule for target.
+dynamic_reconfigure_generate_messages_py: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 dynamic_reconfigure_generate_messages_py
+.PHONY : dynamic_reconfigure_generate_messages_py
+
+# fast build rule for target.
+dynamic_reconfigure_generate_messages_py/fast:
+	$(MAKE) -f CMakeFiles/dynamic_reconfigure_generate_messages_py.dir/build.make CMakeFiles/dynamic_reconfigure_generate_messages_py.dir/build
+.PHONY : dynamic_reconfigure_generate_messages_py/fast
+
+#=============================================================================
+# Target rules for targets named mavlink_analyze
+
+# Build rule for target.
+mavlink_analyze: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 mavlink_analyze
+.PHONY : mavlink_analyze
+
+# fast build rule for target.
+mavlink_analyze/fast:
+	$(MAKE) -f CMakeFiles/mavlink_analyze.dir/build.make CMakeFiles/mavlink_analyze.dir/build
+.PHONY : mavlink_analyze/fast
+
+#=============================================================================
+# Target rules for targets named mavlink_gencfg
+
+# Build rule for target.
+mavlink_gencfg: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 mavlink_gencfg
+.PHONY : mavlink_gencfg
+
+# fast build rule for target.
+mavlink_gencfg/fast:
+	$(MAKE) -f CMakeFiles/mavlink_gencfg.dir/build.make CMakeFiles/mavlink_gencfg.dir/build
+.PHONY : mavlink_gencfg/fast
+
+#=============================================================================
 # Target rules for targets named mavlink_gencpp
 
 # Build rule for target.
@@ -474,6 +552,30 @@ gtest_main/fast:
 	$(MAKE) -f gtest/CMakeFiles/gtest_main.dir/build.make gtest/CMakeFiles/gtest_main.dir/build
 .PHONY : gtest_main/fast
 
+src/mavlink_ros_analyze.o: src/mavlink_ros_analyze.cpp.o
+.PHONY : src/mavlink_ros_analyze.o
+
+# target to build an object file
+src/mavlink_ros_analyze.cpp.o:
+	$(MAKE) -f CMakeFiles/mavlink_analyze.dir/build.make CMakeFiles/mavlink_analyze.dir/src/mavlink_ros_analyze.cpp.o
+.PHONY : src/mavlink_ros_analyze.cpp.o
+
+src/mavlink_ros_analyze.i: src/mavlink_ros_analyze.cpp.i
+.PHONY : src/mavlink_ros_analyze.i
+
+# target to preprocess a source file
+src/mavlink_ros_analyze.cpp.i:
+	$(MAKE) -f CMakeFiles/mavlink_analyze.dir/build.make CMakeFiles/mavlink_analyze.dir/src/mavlink_ros_analyze.cpp.i
+.PHONY : src/mavlink_ros_analyze.cpp.i
+
+src/mavlink_ros_analyze.s: src/mavlink_ros_analyze.cpp.s
+.PHONY : src/mavlink_ros_analyze.s
+
+# target to generate assembly for a file
+src/mavlink_ros_analyze.cpp.s:
+	$(MAKE) -f CMakeFiles/mavlink_analyze.dir/build.make CMakeFiles/mavlink_analyze.dir/src/mavlink_ros_analyze.cpp.s
+.PHONY : src/mavlink_ros_analyze.cpp.s
+
 src/mavlink_ros_serial.o: src/mavlink_ros_serial.cpp.o
 .PHONY : src/mavlink_ros_serial.o
 
@@ -531,11 +633,17 @@ help:
 	@echo "... _mavlink_generate_messages_check_deps_Mavlink"
 	@echo "... clean_test_results"
 	@echo "... doxygen"
+	@echo "... dynamic_reconfigure_gencfg"
+	@echo "... dynamic_reconfigure_generate_messages_cpp"
+	@echo "... dynamic_reconfigure_generate_messages_lisp"
+	@echo "... dynamic_reconfigure_generate_messages_py"
 	@echo "... edit_cache"
 	@echo "... install"
 	@echo "... install/local"
 	@echo "... install/strip"
 	@echo "... list_install_components"
+	@echo "... mavlink_analyze"
+	@echo "... mavlink_gencfg"
 	@echo "... mavlink_gencpp"
 	@echo "... mavlink_generate_messages"
 	@echo "... mavlink_generate_messages_cpp"
@@ -560,6 +668,9 @@ help:
 	@echo "... tests"
 	@echo "... gtest"
 	@echo "... gtest_main"
+	@echo "... src/mavlink_ros_analyze.o"
+	@echo "... src/mavlink_ros_analyze.i"
+	@echo "... src/mavlink_ros_analyze.s"
 	@echo "... src/mavlink_ros_serial.o"
 	@echo "... src/mavlink_ros_serial.i"
 	@echo "... src/mavlink_ros_serial.s"

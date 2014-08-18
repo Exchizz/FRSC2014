@@ -1,0 +1,8 @@
+\subsubsection parameters ROS parameters
+
+Reads and maintains the following parameters on the ROS server
+
+- \b "~p_up" : \b [double] P-up min: 0.0, default: 0.5, max: 1.0
+- \b "~p_down" : \b [double] P-down min: 0.0, default: 0.5, max: 1.0
+- \b "~size" : \b [int] A size parameter which is edited via an enum min: 0, default: 1, max: 3
+
