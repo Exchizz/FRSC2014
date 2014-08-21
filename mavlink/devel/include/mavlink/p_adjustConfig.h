@@ -421,7 +421,7 @@ p_adjustConfig::GroupDescription<p_adjustConfig::DEFAULT, p_adjustConfig> Defaul
 //#line 262 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __min__.p_up = 0.0;
 //#line 262 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
-      __max__.p_up = 1.0;
+      __max__.p_up = 20.0;
 //#line 262 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __default__.p_up = 0.01;
 //#line 262 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
@@ -431,7 +431,7 @@ p_adjustConfig::GroupDescription<p_adjustConfig::DEFAULT, p_adjustConfig> Defaul
 //#line 262 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __min__.p_down = 0.0;
 //#line 262 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
-      __max__.p_down = 1.0;
+      __max__.p_down = 20.0;
 //#line 262 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __default__.p_down = 0.01;
 //#line 262 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"

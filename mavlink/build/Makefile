@@ -358,6 +358,19 @@ mavlink_genpy/fast:
 .PHONY : mavlink_genpy/fast
 
 #=============================================================================
+# Target rules for targets named mavlink_godown
+
+# Build rule for target.
+mavlink_godown: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 mavlink_godown
+.PHONY : mavlink_godown
+
+# fast build rule for target.
+mavlink_godown/fast:
+	$(MAKE) -f CMakeFiles/mavlink_godown.dir/build.make CMakeFiles/mavlink_godown.dir/build
+.PHONY : mavlink_godown/fast
+
+#=============================================================================
 # Target rules for targets named mavlink_node_serial
 
 # Build rule for target.
@@ -600,6 +613,30 @@ src/mavlink_ros_serial.cpp.s:
 	$(MAKE) -f CMakeFiles/mavlink_node_serial.dir/build.make CMakeFiles/mavlink_node_serial.dir/src/mavlink_ros_serial.cpp.s
 .PHONY : src/mavlink_ros_serial.cpp.s
 
+src/mavlink_ros_speedcontroller.o: src/mavlink_ros_speedcontroller.cpp.o
+.PHONY : src/mavlink_ros_speedcontroller.o
+
+# target to build an object file
+src/mavlink_ros_speedcontroller.cpp.o:
+	$(MAKE) -f CMakeFiles/mavlink_godown.dir/build.make CMakeFiles/mavlink_godown.dir/src/mavlink_ros_speedcontroller.cpp.o
+.PHONY : src/mavlink_ros_speedcontroller.cpp.o
+
+src/mavlink_ros_speedcontroller.i: src/mavlink_ros_speedcontroller.cpp.i
+.PHONY : src/mavlink_ros_speedcontroller.i
+
+# target to preprocess a source file
+src/mavlink_ros_speedcontroller.cpp.i:
+	$(MAKE) -f CMakeFiles/mavlink_godown.dir/build.make CMakeFiles/mavlink_godown.dir/src/mavlink_ros_speedcontroller.cpp.i
+.PHONY : src/mavlink_ros_speedcontroller.cpp.i
+
+src/mavlink_ros_speedcontroller.s: src/mavlink_ros_speedcontroller.cpp.s
+.PHONY : src/mavlink_ros_speedcontroller.s
+
+# target to generate assembly for a file
+src/mavlink_ros_speedcontroller.cpp.s:
+	$(MAKE) -f CMakeFiles/mavlink_godown.dir/build.make CMakeFiles/mavlink_godown.dir/src/mavlink_ros_speedcontroller.cpp.s
+.PHONY : src/mavlink_ros_speedcontroller.cpp.s
+
 src/mavlink_ros_to_pixhawk_node.o: src/mavlink_ros_to_pixhawk_node.cpp.o
 .PHONY : src/mavlink_ros_to_pixhawk_node.o
 
@@ -651,6 +688,7 @@ help:
 	@echo "... mavlink_generate_messages_py"
 	@echo "... mavlink_genlisp"
 	@echo "... mavlink_genpy"
+	@echo "... mavlink_godown"
 	@echo "... mavlink_node_serial"
 	@echo "... mavlink_send_command_serial"
 	@echo "... rebuild_cache"
@@ -674,6 +712,9 @@ help:
 	@echo "... src/mavlink_ros_serial.o"
 	@echo "... src/mavlink_ros_serial.i"
 	@echo "... src/mavlink_ros_serial.s"
+	@echo "... src/mavlink_ros_speedcontroller.o"
+	@echo "... src/mavlink_ros_speedcontroller.i"
+	@echo "... src/mavlink_ros_speedcontroller.s"
 	@echo "... src/mavlink_ros_to_pixhawk_node.o"
 	@echo "... src/mavlink_ros_to_pixhawk_node.i"
 	@echo "... src/mavlink_ros_to_pixhawk_node.s"

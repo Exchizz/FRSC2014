@@ -209,6 +209,7 @@ SET(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/mavlink_generate_messages_py.dir/DependInfo.cmake"
   "CMakeFiles/mavlink_genlisp.dir/DependInfo.cmake"
   "CMakeFiles/mavlink_genpy.dir/DependInfo.cmake"
+  "CMakeFiles/mavlink_godown.dir/DependInfo.cmake"
   "CMakeFiles/mavlink_node_serial.dir/DependInfo.cmake"
   "CMakeFiles/mavlink_send_command_serial.dir/DependInfo.cmake"
   "CMakeFiles/roscpp_generate_messages_cpp.dir/DependInfo.cmake"

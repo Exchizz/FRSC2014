@@ -16,6 +16,7 @@
 /home/exchizz/ROS/Projects/UAV/mavlink/build/CMakeFiles/mavlink_generate_messages_py.dir
 /home/exchizz/ROS/Projects/UAV/mavlink/build/CMakeFiles/mavlink_genlisp.dir
 /home/exchizz/ROS/Projects/UAV/mavlink/build/CMakeFiles/mavlink_genpy.dir
+/home/exchizz/ROS/Projects/UAV/mavlink/build/CMakeFiles/mavlink_godown.dir
 /home/exchizz/ROS/Projects/UAV/mavlink/build/CMakeFiles/mavlink_node_serial.dir
 /home/exchizz/ROS/Projects/UAV/mavlink/build/CMakeFiles/mavlink_send_command_serial.dir
 /home/exchizz/ROS/Projects/UAV/mavlink/build/CMakeFiles/roscpp_generate_messages_cpp.dir

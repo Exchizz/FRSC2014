@@ -2,6 +2,6 @@
 
 Reads and maintains the following parameters on the ROS server
 
-- \b "~p_up" : \b [double] P-up min: 0.0, default: 0.01, max: 1.0
-- \b "~p_down" : \b [double] P-down min: 0.0, default: 0.01, max: 1.0
+- \b "~p_up" : \b [double] P-up min: 0.0, default: 0.01, max: 20.0
+- \b "~p_down" : \b [double] P-down min: 0.0, default: 0.01, max: 20.0
 

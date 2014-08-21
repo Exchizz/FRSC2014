@@ -139,8 +139,10 @@ include_directories(
 add_executable(mavlink_node_serial src/mavlink_ros_serial.cpp)
 add_executable(mavlink_send_command_serial src/mavlink_ros_to_pixhawk_node.cpp)
 add_executable(mavlink_analyze src/mavlink_ros_analyze.cpp)
+add_executable(mavlink_godown src/mavlink_ros_speedcontroller.cpp)
 
 add_dependencies(mavlink_send_command_serial  ${PROJECT_NAME}_gencfg)
+add_dependencies(mavlink_godown  ${PROJECT_NAME}_gencfg)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -163,6 +165,13 @@ add_dependencies(mavlink_send_command_serial  ${PROJECT_NAME}_gencfg)
  )
 
  target_link_libraries(mavlink_analyze
+   ${catkin_LIBRARIES}
+   ${GLIB2_LIBRARY}
+   ${GTHREAD2_LIBRARY}
+
+ )
+
+ target_link_libraries(mavlink_godown
    ${catkin_LIBRARIES}
    ${GLIB2_LIBRARY}
    ${GTHREAD2_LIBRARY}
